@@ -1,10 +1,9 @@
 <script>
-	import { onDestroy, onMount, createEventDispatcher  } from 'svelte';
+	import { onDestroy, onMount, createEventDispatcher } from 'svelte';
+	import { editorStore } from '$lib/data/store.svelte';
 
-    const dispatch = createEventDispatcher();
+	const dispatch = createEventDispatcher();
 
-
-	let { inputValue } = $props();
 	let editor; // エディターのインスタンス
 	let monaco; // Monaco Editorライブラリ
 	let editorContainer; // エディターを表示するHTML要素
@@ -15,7 +14,7 @@
 
 		// エディター用のモデル（表示するコードとその言語を定義）
 		const model = monaco.editor.createModel(
-			inputValue, // 初期コード
+			editorStore.editorData, // 初期コード
 			'javascript' // 使用する言語（例: 'javascript', 'typescript', 'html', 'css'）
 		);
 
@@ -34,11 +33,20 @@
 		// エディター内で内容が変更された場合に`change`イベントを発火
 		editor.onDidChangeModelContent(() => {
 			const value = editor.getValue();
-			console.log(value); // 変更内容をコンソールに表示（デバッグ用）
-
-			// 親コンポーネントに変更内容を通知
-			dispatch('change', value);
+			if (value !== editorStore.editorData) {
+				editorStore.setEditorData(value);
+			}
 		});
+	});
+
+	function setValue() {
+		editor.setValue(editorStore.editorData);
+	}
+
+	$effect(() => {
+		if (editor && editor.getValue() !== editorStore.editorData) {
+			editor.setValue(editorStore.editorData);
+		}
 	});
 
 	onDestroy(() => {
@@ -53,6 +61,7 @@
 	});
 </script>
 
+<button onclick={() => setValue()}> btn </button>
 <div>
 	<!-- エディターを表示するコンテナ -->
 	<div class="container" bind:this={editorContainer}></div>
