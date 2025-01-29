@@ -21,6 +21,11 @@
 		</div>
 
 		<div class="col-span-12 md:col-span-6">
+			<label class="input w-full mb-2">
+				URL
+				<input type="text" class="grow" placeholder="https://" bind:value={editorStore.urlDisplay}/>
+				<!-- <span class="badge badge-neutral badge-xs">Optional</span> -->
+			  </label>
 			<MonacoEditor   />
 		</div>
 

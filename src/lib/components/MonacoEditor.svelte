@@ -37,17 +37,18 @@
 				editorStore.setEditorData(value);
 			}
 		});
+
+		editorStore.registerSetValueCallback((newValue) => {
+			if (editor) editor.setValue(newValue);
+		});
+
 	});
 
 	function setValue() {
 		editor.setValue(editorStore.editorData);
 	}
 
-	$effect(() => {
-		if (editor && editor.getValue() !== editorStore.editorData) {
-			editor.setValue(editorStore.editorData);
-		}
-	});
+
 
 	onDestroy(() => {
 		// エディターのリソースを解放
@@ -61,7 +62,6 @@
 	});
 </script>
 
-<button onclick={() => setValue()}> btn </button>
 <div>
 	<!-- エディターを表示するコンテナ -->
 	<div class="container" bind:this={editorContainer}></div>

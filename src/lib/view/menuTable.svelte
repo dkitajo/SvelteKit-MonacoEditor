@@ -1,43 +1,16 @@
 <script>
-	import { apiList } from '$lib/data/apiList';
 	import { mcStore } from '$lib/data/store.svelte';
 	import { editorStore } from '$lib/data/store.svelte';
 
-	const tryAPI = (endpoint) => {
-		console.log(`Trying API: ${endpoint}`);
-		editorStore.setEditorData(endpoint);
+	const tryAPI = (id) => {
+		const api = mcStore.apiList.find(a => a.id === id);
+		editorStore.setEditorData(JSON.stringify(api.requestBody, null, 2)); // Updates Monaco Editor with formatted JSON
+		editorStore.setURLData(api.endpoint); // Updates URL display
 	};
-
-	// Function to replace {{variables}} with user input
-	function populateAPI(api) {
-		// Clone the API object to prevent modifying the original
-		let populatedAPI = { ...api };
-
-		// Get user-inputted data from mcStore
-		let userData = mcStore.mcData;
-
-		// Replace placeholders in the endpoint
-		populatedAPI.endpoint = populatedAPI.endpoint.replace(/{{(.*?)}}/g, (_, key) => userData[key] || '');
-
-		// If there's a request body, replace placeholders in JSON
-		if (populatedAPI.requestBody) {
-			populatedAPI.requestBody = JSON.parse(
-				JSON.stringify(populatedAPI.requestBody).replace(/{{(.*?)}}/g, (_, key) => userData[key] || '')
-			);
-		}
-
-		return populatedAPI;
-	}
-
-	// Example Usage
-	let testAPI = populateAPI(apiList[0]); // Testing with the first API
-
-
 </script>
 
 <div class="w-full overflow-x-auto">
 	<table class="table w-full min-w-full border rounded-lg table-auto">
-		<!-- Table Head -->
 		<thead>
 			<tr class="bg-base-200">
 				<th>#</th>
@@ -50,18 +23,18 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each apiList as api}
+			{#each mcStore.apiList as api}
 				<tr>
 					<th>{api.id}</th>
 					<td class="font-semibold">{api.name}</td>
 					<td>{api.function}</td>
 					<td><span class="badge badge-primary">{api.method}</span></td>
-					<td><code class="text-sm">{api.endpoint}</code></td>
+					<td><code class="text-sm break-all">{api.endpoint}</code></td>
 					<td>
 						<a href={api.doc} target="_blank" class="btn btn-outline btn-xs">Docs</a>
 					</td>
 					<td>
-						<button class="btn btn-primary btn-xs" on:click={() => tryAPI(api.endpoint)}>
+						<button class="btn btn-primary btn-xs" on:click={() => tryAPI(api.id)}>
 							Try This
 						</button>
 					</td>
